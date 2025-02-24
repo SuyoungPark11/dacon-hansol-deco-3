@@ -8,6 +8,11 @@ def load_data(train_path, test_path):
 
 
 def preprocess_data(df):
+    df = df.dropna(subset=["인적사고", "사고원인"]).copy()
+    df["인적사고"] = df["인적사고"].replace(
+        to_replace={r"넘어짐.*": "넘어짐", r"떨어짐.*": "떨어짐"}, regex=True
+    )
+
     for col, delim in [("공사종류", " / "), ("공종", " > "), ("사고객체", " > ")]:
         df[f"{col}(대분류)"] = df[col].str.split(delim).str[0]
         df[f"{col}(중분류)"] = df[col].str.split(delim).str[1]

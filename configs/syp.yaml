@@ -29,3 +29,6 @@ prompt_template: |
 
 settings:
   batch_size: 32
+  max_new_tokens: 64
+  search_model: "cosine" # cosine, similarity, mmr
+  search_k_num: 5

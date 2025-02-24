@@ -1,7 +1,7 @@
 # This is an exmaple to write config.yaml
 paths:
   train_data: "/data/ephemeral/Dacon/.dataset/train.csv"
-  test_data: "/data/ephemeral/Dacon/.dataset/test.csv"
+  test_data: "/data/ephemeral/Dacon/.dataset/test_sample.csv"
   submission: "/data/ephemeral/Dacon/.dataset/sample_submission.csv"
   output: "./baseline_submission.csv"
 

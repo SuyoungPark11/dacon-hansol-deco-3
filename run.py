@@ -46,6 +46,9 @@ def main():
     embedding_model_name = cfg["model"]["embedding_model"]
     prompt_template = cfg["prompt_template"]
     batch_size = cfg["settings"]["batch_size"]
+    max_new_tokens = cfg["settings"]["max_new_tokens"]
+    search_model = cfg["settings"]["search_model"]
+    search_k_num = cfg["settings"]["search_k_num"]
 
     # load data
     train_df, test_df = load_data(train_data_path, test_data_path)
@@ -61,7 +64,15 @@ def main():
     vector_store = create_vector_store(train_data, embedding_model_name)
 
     # Generate RAG chain
-    qa_chain = create_qa_chain(vector_store, model, tokenizer, prompt_template)
+    qa_chain = create_qa_chain(
+        vector_store,
+        model,
+        tokenizer,
+        prompt_template,
+        search_model,
+        search_k_num,
+        max_new_tokens,
+    )
 
     # Batch processing
     test_dataset = Dataset.from_pandas(test_data)

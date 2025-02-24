@@ -5,11 +5,11 @@ from transformers import (
     AutoTokenizer,
     BitsAndBytesConfig,
 )
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.vectorstores import FAISS
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
 from langchain.prompts import PromptTemplate
 from langchain.chains import RetrievalQA
-from langchain.llms import HuggingFacePipeline
+from langchain_community.llms import HuggingFacePipeline
 
 
 def initialize_model(model_name=None, model_path=None):
@@ -17,7 +17,7 @@ def initialize_model(model_name=None, model_path=None):
         load_in_4bit=True,
         bnb_4bit_use_double_quant=True,
         bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype=torch.bfloat16,
+        bnb_4bit_compute_dtype=torch.float16,  # bfloat16 시 연산병목 발생
     )
     if model_name:
         tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -40,8 +40,18 @@ def create_vector_store(train_data, embedding_model_name):
     return FAISS.from_texts(documents, embedding)
 
 
-def create_qa_chain(vector_store, model, tokenizer, prompt_template):
-    retriever = vector_store.as_retriever(search_model="cosine", search_kwargs={"k": 5})
+def create_qa_chain(
+    vector_store,
+    model,
+    tokenizer,
+    prompt_template,
+    search_model,
+    search_k_num=5,
+    max_new_tokens=64,
+):
+    retriever = vector_store.as_retriever(
+        search_model=search_model, search_kwargs={"k": search_k_num}
+    )
     text_gen_pipeline = pipeline(
         model=model,
         tokenizer=tokenizer,
@@ -49,7 +59,7 @@ def create_qa_chain(vector_store, model, tokenizer, prompt_template):
         do_sample=True,
         temperature=0.1,
         return_full_text=False,
-        max_new_tokens=64,
+        max_new_tokens=max_new_tokens,
     )
     llm = HuggingFacePipeline(pipeline=text_gen_pipeline)
     prompt = PromptTemplate(
